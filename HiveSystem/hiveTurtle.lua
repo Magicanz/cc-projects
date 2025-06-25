@@ -82,11 +82,9 @@ local function emptyHive ()
     if count ~= 5 then return false end
 
     turtle.dropUp()
+    sleep(1)
 
-    for i=1,5 do
-        turtle.select(i)
-        turtle.suckUp()
-    end
+    while turtle.suckUp() do end
     loc = findItem("productivebees:sturdy_bee_cage", 1)
     if loc == nil then return false end
 
