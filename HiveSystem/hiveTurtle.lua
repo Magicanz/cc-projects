@@ -146,4 +146,12 @@ local function main ()
     end
 end
 
-main()
+local success, errorMsg = pcall(main)
+
+if not success then
+    print("ERROR, CRASH!")
+    print(errorMsg)
+    sleep(60)
+    updateCode("")
+    os.reboot()
+end

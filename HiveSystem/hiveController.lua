@@ -75,8 +75,25 @@ local function main ()
             else
                 os.reboot()
             end
+        elseif input == "updateall" then
+            rednet.broadcast("UPDATE", "PROT_HIVE")
+            rednet.broadcast("UPDATE", "PROT_HIVE_UPGR")
+            local response = updateCode("")
+            if not response then
+                print("Error with Update")
+            else
+                os.reboot()
+            end
         end
     end
 end
 
-main()
+local success, errorMsg = pcall(main)
+
+if not success then
+    print("ERROR, CRASH!")
+    print(errorMsg)
+    sleep(60)
+    updateCode("")
+    os.reboot()
+end
