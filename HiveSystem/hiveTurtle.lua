@@ -1,4 +1,4 @@
-UpdateUrl = ""
+UpdateUrl = "https://raw.githubusercontent.com/Magicanz/cc-projects/refs/heads/main/HiveSystem/hiveTurtle.lua"
 Filled = false
 
 local function updateCode(in_url)
