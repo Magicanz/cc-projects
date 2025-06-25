@@ -35,7 +35,7 @@ local function extractUpgrades ()
 end
 
 local function main ()
-    rednet.open("left")
+    rednet.open("right")
 
     while true do
         local id, msg = rednet.receive("PROT_HIVE_UPGR")
