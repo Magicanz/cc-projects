@@ -1,3 +1,4 @@
+Version = 1
 UpdateUrl = "https://raw.githubusercontent.com/Magicanz/cc-projects/refs/heads/main/HiveSystem/hiveUpgradeHandler.lua"
 
 local function updateCode(in_url)
@@ -59,6 +60,8 @@ local function main ()
         end
     end
 end
+
+print("Version ", Version)
 
 local success, errorMsg = pcall(main)
 

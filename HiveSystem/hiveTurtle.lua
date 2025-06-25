@@ -1,3 +1,4 @@
+Version = 1
 UpdateUrl = "https://raw.githubusercontent.com/Magicanz/cc-projects/refs/heads/main/HiveSystem/hiveTurtle.lua"
 Filled = false
 
@@ -145,6 +146,8 @@ local function main ()
         end
     end
 end
+
+print("Version ", Version)
 
 local success, errorMsg = pcall(main)
 
