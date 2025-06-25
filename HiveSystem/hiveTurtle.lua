@@ -134,7 +134,7 @@ local function main ()
             end
             response = updateCode(link)
             if not response then
-                print("EMP ERR")
+                print("UPDATE ERR")
                 rednet.send(id, "UPDATE_ERR", "PROT_HIVE_R")
             else
                 os.reboot()
