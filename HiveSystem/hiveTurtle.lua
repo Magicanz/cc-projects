@@ -1,6 +1,5 @@
 Version = 2
 UpdateUrl = "https://raw.githubusercontent.com/Magicanz/cc-projects/refs/heads/main/HiveSystem/hiveTurtle.lua"
-Filled = true
 
 local function updateCode(in_url)
     if in_url ~= "" then
@@ -50,13 +49,11 @@ local function placeHive()
 end
 
 local function destroyHive ()
-    if Filled then return false end
     turtle.select(1)
     return turtle.digUp()
 end
 
 local function fillHive ()
-    if Filled then return false end
     for i=1,16 do
         turtle.select(i)
         turtle.dropUp()
@@ -65,7 +62,6 @@ local function fillHive ()
 
     turtle.select(1)
     turtle.suckUp()
-    Filled = true
 
     if turtle.getItemCount() == 5 then
         return true
@@ -88,7 +84,6 @@ local function emptyHive ()
     loc = findItem("productivebees:sturdy_bee_cage", 1)
     if loc == nil then return false end
 
-    Filled = false
     return true
 end
  
