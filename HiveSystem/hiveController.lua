@@ -65,21 +65,21 @@ local function main ()
             setupHive()
         elseif input == "out" then
             remHive()
+        elseif input == "updateall" then
+            rednet.broadcast("UPDATE", "PROT_HIVE")
+            rednet.broadcast("UPDATE", "PROT_HIVE_UPGR")
+            local response = updateCode("")
+            if not response then
+                print("Error with Update")
+            else
+                os.reboot()
+            end
         elseif string.sub(input, 1, 6) == "update" then
             local link = "" 
             if string.len(input) >= 7 then
                 link = string.sub(input, 8)
             end
             local response = updateCode(link)
-            if not response then
-                print("Error with Update")
-            else
-                os.reboot()
-            end
-        elseif input == "updateall" then
-            rednet.broadcast("UPDATE", "PROT_HIVE")
-            rednet.broadcast("UPDATE", "PROT_HIVE_UPGR")
-            local response = updateCode("")
             if not response then
                 print("Error with Update")
             else
