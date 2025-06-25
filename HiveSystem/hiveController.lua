@@ -66,8 +66,8 @@ local function main ()
             remHive()
         elseif string.sub(input, 1, 6) == "update" then
             local link = "" 
-            if string.len(msg) >= 7 then
-                link = string.sub(msg, 8)
+            if string.len(input) >= 7 then
+                link = string.sub(input, 8)
             end
             local response = updateCode(link)
             if not response then
