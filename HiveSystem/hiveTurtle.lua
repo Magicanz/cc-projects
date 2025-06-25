@@ -1,6 +1,6 @@
-Version = 1
+Version = 2
 UpdateUrl = "https://raw.githubusercontent.com/Magicanz/cc-projects/refs/heads/main/HiveSystem/hiveTurtle.lua"
-Filled = false
+Filled = true
 
 local function updateCode(in_url)
     if in_url ~= "" then
@@ -87,11 +87,8 @@ local function emptyHive ()
         turtle.select(i)
         turtle.suckUp()
     end
-
-    local item = turtle.getItemDetail()
-    if item ~= nil and item["name"] ~= "productivebees:sturdy_bee_cage" then
-        return false
-    end
+    loc = findItem("productivebees:sturdy_bee_cage", 1)
+    if loc == nil then return false end
 
     Filled = false
     return true
