@@ -81,11 +81,11 @@ local function resetBg ()
 
     drawRect(3, 2, 15, 10, colors.lime)
     drawRect(63, 2, 15, 10, colors.red)
-    drawRect(3, 41, 15, 10, colors.lightBlue)
-    drawRect(63, 41, 15, 10, colors.magenta)
+    drawRect(3, 41, 15, 10, colors.yellow)
+    drawRect(63, 41, 15, 10, colors.blue)
 
-    drawRect(15, 10, 51, 33, colors.lightGray)
-    drawRect(16, 11, 49, 31, colors.black)
+    drawRect(14, 10, 51, 33, colors.lightGray)
+    drawRect(15, 11, 49, 31, colors.black)
 end
 
 local function main ()
