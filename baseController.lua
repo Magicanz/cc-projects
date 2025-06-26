@@ -1,5 +1,5 @@
 Version = 1
-UpdateUrl = "https://raw.githubusercontent.com/Magicanz/cc-projects/refs/heads/main/HiveSystem/hiveController.lua"
+UpdateUrl = "https://raw.githubusercontent.com/Magicanz/cc-projects/refs/heads/main/baseController.lua"
 
 MN = peripheral.wrap("right")
 
@@ -77,13 +77,15 @@ local function drawRect (x, y, w_x, w_y, col)
 end
 
 local function resetBg ()
-    drawRect(3, 2, 21, 14, colors.lime)
-    drawRect(56, 2, 21, 14, colors.red)
-    drawRect(3, 37, 21, 14, colors.lightBlue)
-    drawRect(56, 37, 21, 14, colors.magenta)
+    MN.clear()
 
-    drawRect(21, 15, 32, 24, colors.lightGray)
-    drawRect(22, 16, 30, 22, colors.black)
+    drawRect(3, 2, 21, 14, colors.lime)
+    drawRect(57, 2, 21, 14, colors.red)
+    drawRect(3, 37, 21, 14, colors.lightBlue)
+    drawRect(57, 37, 21, 14, colors.magenta)
+
+    drawRect(21, 15, 38, 23, colors.lightGray)
+    drawRect(22, 16, 36, 21, colors.black)
 end
 
 local function main ()
