@@ -79,13 +79,13 @@ end
 local function resetBg ()
     MN.clear()
 
-    drawRect(3, 2, 21, 14, colors.lime)
-    drawRect(57, 2, 21, 14, colors.red)
-    drawRect(3, 37, 21, 14, colors.lightBlue)
-    drawRect(57, 37, 21, 14, colors.magenta)
+    drawRect(3, 2, 15, 10, colors.lime)
+    drawRect(63, 2, 15, 10, colors.red)
+    drawRect(3, 41, 15, 10, colors.lightBlue)
+    drawRect(63, 41, 15, 10, colors.magenta)
 
-    drawRect(21, 15, 38, 23, colors.lightGray)
-    drawRect(22, 16, 36, 21, colors.black)
+    drawRect(15, 10, 51, 33, colors.lightGray)
+    drawRect(16, 11, 49, 31, colors.black)
 end
 
 local function main ()
