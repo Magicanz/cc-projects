@@ -1,0 +1,74 @@
+local function overstress ()
+    md.transmit(8969, 3344, {"WARNING", "MN SYS OVRSTRS", os.time("utc") + 1, "Overstress in main system.", "Overstress in main system, powered by the nuclear reactors. Has heat run low, or have you added something that overloads it?", {gps.locate(3)}})
+    print("Overstress detected")
+end
+
+local function noHeat ()
+    md.transmit(3345, 3344, "heat_off")
+    print("No heat detected")
+end
+
+local function heatReturned ()
+    md.transmit(3345, 3344, "heat_on")
+    print("Heat detected")
+end
+
+local function l ()
+    local le = redstone.getAnalogInput("left")
+    return le
+end
+
+local function b ()
+    local ba = redstone.getAnalogInput("back")
+    return ba
+end
+
+term.clear()
+term.setCursorPos(1,1)
+md = peripheral.wrap("right")
+md.open(3344)
+
+local left = redstone.getAnalogInput("left")
+local back = redstone.getAnalogInput("back")
+local heatgone = false
+local ovrs = false
+local overstressClock = 0
+
+if left ~= 9 then
+    overstress()
+    ovrs = true
+end
+
+if back ~= 9 then
+    noHeat()
+    heatgone = true
+end
+
+while true do
+    os.pullEvent("redstone")
+    local le = l()
+    local ba = b()
+
+    if left ~= le then
+        if le == 0 and not ovrs then
+            if os.clock() - overstressClock >= 30 then
+                ovrs = true
+                overstress()
+                overstressClock = os.clock()
+            end
+        elseif le == 9 and ovrs then
+            ovrs = false
+        end
+        left = le
+    end
+    if back ~= ba then
+        if ba == 9 and heatgone then
+            heatgone = false
+            heatReturned()
+        elseif ba <= 4 and not heatgone then
+            heatgone = true
+            noHeat()
+        end
+        back = ba
+    end
+end

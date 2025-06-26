@@ -1,0 +1,1 @@
+print(redstone.getAnalogInput("right"))

@@ -1,0 +1,36 @@
+-- data in {{side}, {strength}, {setFull} {item}, {container}, {time}}
+
+function loadInfo (fileName)
+    local file = fs.open(fileName, "r")
+    local data = file.readAll()
+    file.close()
+    return textutils.unserialise(data)
+end
+
+local function sendMsg (ind)
+    md.transmit(8969, 0, {"INFO", "CONT FULL", os.time("utc") + 1, ContData[5][ind] .. " containing " .. ContData[4][ind] .. " is full!", ContData[5][ind] .. " containing " .. ContData[4][ind] .. " is full! Make sure to check it out unless you want to waste items. Computer label is: ".. os.getComputerLabel(), {gps.locate(3)}})
+end
+
+function rsLoop ()
+    os.pullEvent("redstone")
+    for i,side in ipairs(ContData[1]) do
+        local inval = redstone.getAnalogInput(side)
+        if inval < ContData[2][i] and ContData[3][i] and os.clock() - ContData[6][i] > 1800 then
+            ContData[3][i] = false
+        end
+        if inval >= ContData[2][i] and not ContData[3][i] then
+            ContData[3][i] = true
+            ContData[6][i] = os.clock()
+            sendMsg(i)
+        end
+    end
+end
+
+term.clear()
+term.setCursorPos(1,1)
+ContData = loadInfo("itemInfo")
+md = peripheral.find("modem")
+
+while true do
+    rsLoop()
+end

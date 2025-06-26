@@ -1,0 +1,85 @@
+local avSides = {"front", "back", "left", "right", "top", "bottom"}
+local side = {}
+local strength = {}
+local setFull = {}
+local item = {}
+local container = {}
+local timer = {}
+
+term.clear()
+term.setCursorPos(1,1)
+
+print("Remember to place redstone torches where the comparators are BEFORE the program proceeds.")
+print("Available sides are front, back, left, right, top, bottom.")
+print("Write \"done\" when done. ")
+print("")
+
+local claimed = 0
+
+while claimed < 6 do
+    write("Enter side name: ")
+    local input = read()
+    input = string.lower(input)
+    if input == "done" then break end
+    local sideClaimed = false
+    for j=1,#side,1 do
+        if input == side[j] then
+            print(input .. " already claimed by " .. item[j] .. "!")
+            sideClaimed = true
+            break
+        end
+    end
+    if not sideClaimed then
+        local found = false
+        for j=1,#avSides,1 do
+            if input == avSides[j] then
+                found = true
+                print("Enter type of container (capitalize first letter): ")
+                local cont = read()
+                write("Enter type of item: ")
+                local itm = read()
+
+                print("Message will look like this: ")
+                print(cont .. " containing " .. itm .. " is full!")
+                while true do
+                    write("Add this combination? (y/n): ")
+                    local sel = read()
+                    string.lower(sel)
+                    if sel == "y" then
+                        table.insert(side, input)
+                        table.insert(strength, redstone.getAnalogInput(input))
+                        table.insert(setFull, false)
+                        table.insert(container, cont)
+                        table.insert(item, itm)
+                        table.insert(timer, -1800)
+                        print("Added side!")
+                        claimed = claimed + 1
+                        break
+                    elseif sel == "n" then
+                        print("Canceled addition!")
+                        break
+                    else
+                        print("Please enter y or n")
+                    end
+                end
+                break
+            end
+        end
+        if not found then
+            print(input .. " not an available side!")
+        end
+    end
+    print("")
+end
+
+local retTable = {}
+table.insert(retTable, side)
+table.insert(retTable, strength)
+table.insert(retTable, setFull)
+table.insert(retTable, item)
+table.insert(retTable, container)
+table.insert(retTable, timer)
+
+local file = fs.open("itemInfo","w")
+file.write(textutils.serialize(retTable))
+file.close()

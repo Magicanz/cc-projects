@@ -1,0 +1,54 @@
+local function getVal ()
+    local file = fs.open("timefile.txt", "r")
+    local value = tonumber(file.readLine())
+    file.close()
+    return value
+end
+
+local function setVal (x)
+    file = fs.open("timefile.txt", "w")
+    file.writeLine(tostring(x))
+    file.close()
+end
+
+local function dispense ()
+    print("Dispensing fuel...")
+    redstone.setOutput("back", false)
+    os.sleep(0.3)
+    redstone.setOutput("back", true)
+end
+
+local function waitDispense ()
+        local value = 330
+        os.sleep(value)
+        dispense()
+        setVal(value)
+end
+
+local function calculateDelay ()
+    while true do
+        local e, ms, sc, rc, msg, sd = os.pullEvent("modem_message")
+        if msg == "heat_on" and not HeatOnRecieved then
+            HeatOnRecieved = true
+            Time = os.clock()
+        elseif msg == "heat_off" and HeatOnRecieved then
+            HeatOnRecieved = false
+            dispense()
+            return
+        end
+    end
+end
+
+term.clear()
+term.setCursorPos(1,1)
+redstone.setOutput("back", true) 
+md = peripheral.wrap("top")
+md.open(3345)
+Time = -1
+HeatOnRecieved = false
+dispense()
+
+while true do
+    parallel.waitForAny(waitDispense, calculateDelay)
+    Time = os.clock()
+end

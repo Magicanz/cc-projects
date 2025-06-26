@@ -1,0 +1,2 @@
+local md = peripheral.wrap("back")
+md.transmit(8969, 3000, {"WARNING", "WRLS PKT TEST", os.time("utc") + 1, "Test Message to send to the main screen.", "Overstress in main system, powered by the nuclear reactors. Has heat run low, or have you added something that overloads it?", {gps.locate(3)}})

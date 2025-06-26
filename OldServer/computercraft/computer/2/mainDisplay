@@ -1,0 +1,345 @@
+-- https://pastebin.com/NY6MU58s
+
+-- MESSAGE FORMAT: {type, title, msgTime, shortDesc, longDesc, sourcePos}
+-- NOTICE FORMAT: {ID, type, y, height, title, msgTime, shortDesc, longDesc, sourcePos}
+-- TYPES: ERROR, INFO, WARNING, PROBLEM, COMPLETE
+
+TypeN = {"INFO", "WARNING", "PROBLEM", "COMPLETE", "ERROR"}
+Types = {INFO = colors.lightGray, WARNING = colors.orange, PROBLEM = colors.red, COMPLETE = colors.green, ERROR = colors.brown}
+Type_ind = {INFO = 1, WARNING = 2, PROBLEM = 3, COMPLETE = 4, ERROR = 5}
+Type_filter = {INFO = true, WARNING = true, PROBLEM = true, COMPLETE = true, ERROR = true}
+Filter_y = {}
+Notices = {{}, {}, {}, {}, {}}
+CurrNotices = {}
+
+local function createFilters()
+    Filter_y = {}
+    local y = Height - 1
+    for i=#TypeN,1,-1 do
+        table.insert(Filter_y, 1, y)
+        y = y - 2
+    end
+end
+
+local function drawFilters()
+    for i=1,#TypeN,1 do
+        mon.setCursorPos(36, Filter_y[i])
+        mon.setBackgroundColour(Types[TypeN[i]])
+        mon.write(" ")
+        if Type_filter[TypeN[i]] then
+            mon.setBackgroundColour(colors.white)
+        else
+            mon.setBackgroundColour(colors.black)
+        end
+        mon.write(" ")
+    end
+end
+
+local function generateCurrentNotices ()
+    CurrNotices = {}
+    for i=1,#TypeN,1 do
+        if Type_filter[TypeN[i]] then
+            for j=1,#Notices[i],1 do
+                if #CurrNotices >= math.ceil(Height / 4) and Notices[i][j][1] < CurrNotices[#CurrNotices][1] then
+                    break
+                end
+                local elapsed = true
+                for k=#CurrNotices,1,-1 do
+                    if Notices[i][j][1] < CurrNotices[k][1] then
+                        table.insert(CurrNotices, k+1, Notices[i][j])
+                        elapsed = false
+                        break
+                    end
+                end
+                if elapsed then
+                    table.insert(CurrNotices, 1, Notices[i][j])
+                end
+            end
+        end 
+    end
+end
+
+local function toggleFilter (ind)
+    mon.setCursorPos(37, Filter_y[ind])
+    if Type_filter[TypeN[ind]] then
+        Type_filter[TypeN[ind]] = false
+        mon.setBackgroundColour(colors.black)
+    else
+        Type_filter[TypeN[ind]] = true
+        mon.setBackgroundColour(colors.white)
+    end
+    mon.write(" ")
+    generateCurrentNotices()
+end
+
+local function resetNoticeBoard()
+    for i=1,Height,1 do
+        mon.setBackgroundColour(colors.yellow)
+        mon.setCursorPos(36, i)
+        mon.write("  ")
+        mon.setBackgroundColour(colors.gray)
+        mon.write("                    ") -- 20 spaces
+    end
+    drawFilters()
+end
+
+local function limitStringLength(inputString, maxLength)
+    if #inputString > maxLength then
+        return string.sub(inputString, 1, maxLength - 1) .. "~"
+    else
+        return inputString
+    end
+end
+
+local function wrapText(inputString, maxLength)
+    local output = {}
+    local rows = math.ceil(#inputString / maxLength)
+    for i=0,rows - 1,1 do
+        table.insert(output, string.sub(inputString, i * maxLength + 1, (i + 1) * maxLength))
+    end
+    return output
+end
+
+local function resetControlBoard()
+    LargeNoticeOpen = false
+    for i=1,Height,1 do
+        mon.setBackgroundColour(colors.black)
+        mon.setCursorPos(1, i)
+        mon.write("                                   ") -- 35 spaces
+    end
+end
+
+local function drawLine (text_in, col, x, y, w)
+    mon.setBackgroundColour(col)
+    mon.setCursorPos(x, y)
+    local text = limitStringLength(text_in, w)
+    local spaces = (w - #text) / 2
+    if spaces ~= 0 then
+        if spaces >= 1 then
+            for i=1,math.floor(spaces),1 do mon.write(" ") end
+        end
+        mon.write(text)
+        for i=1,math.ceil(spaces),1 do mon.write(" ") end
+    else 
+        mon.write(text)
+    end
+end
+
+local function drawTwoColorLine (text_in, col_back, col_text, x, y, w)
+    mon.setBackgroundColour(col_back)
+    mon.setCursorPos(x, y)
+    local text = limitStringLength(text_in, w)
+    local spaces = (w - #text) / 2
+    if spaces ~= 0 then
+        if spaces >= 1 then
+            for i=1,math.floor(spaces),1 do mon.write(" ") end
+        end
+        mon.setBackgroundColour(col_text)
+        mon.write(text)
+        mon.setBackgroundColour(col_back)
+        for i=1,math.ceil(spaces),1 do mon.write(" ") end
+    else 
+        mon.setBackgroundColour(col_text)
+        mon.write(text)
+    end
+end
+
+local function drawNotice(notice, y_pos)
+    local height = 1
+    local col = Types[notice[2]]
+    drawLine(notice[5], col, 39, y_pos, 18)
+    local shortDesc = wrapText(notice[7], 18)
+    if #shortDesc <= 1 then 
+        drawLine("  ", col, 39, y_pos + height, 18) 
+        height = height + 1
+    end
+    for _,line in ipairs(shortDesc) do
+        drawLine(line, col, 39, y_pos + height, 18) 
+        height = height + 1
+    end
+
+    notice[3] = y_pos
+    notice[4] = height
+
+    return height
+end
+
+local function drawLargeNotice(notice)
+    resetControlBoard()
+    LargeNoticeOpen = true
+    OpenNotice = notice
+    local y_pos = math.floor((Height - 31) / 2)
+    local m_height = Height - y_pos
+    local height = 5
+    local bg_col = colors.lightGray
+    local type_col = Types[notice[2]]
+    drawLine("  ", bg_col, 3, y_pos, 31)
+    mon.setCursorPos(31, y_pos)
+    mon.setBackgroundColour(colors.red)
+    mon.write("XX")
+    mon.setCursorPos(4, y_pos)
+    mon.write("DEL")
+    drawTwoColorLine(notice[5], bg_col, type_col, 3, y_pos + 1, 31)
+    drawLine("  ", bg_col, 3, y_pos + 2, 31)
+    local hour = math.floor(notice[6])
+    local min = math.floor((notice[6] - hour) * 60)
+    drawLine(hour .. ":" .. min, bg_col, 3, y_pos + 3, 7)
+    local str_id = string.format("%05d", notice[1])
+    drawLine("  ", bg_col, 10, y_pos + 3, 18)
+    drawLine(str_id, bg_col, 27, y_pos + 3, 7)
+    drawLine("  ", bg_col, 3, y_pos + 4, 31)
+
+    local longDesc = wrapText(notice[8], 29)
+    for _,line in ipairs(longDesc) do
+        drawLine(" " .. line .. " ", bg_col, 3, y_pos + height, 31) 
+        height = height + 1
+    end
+    drawLine("  ", bg_col, 3, y_pos + height, 31)
+    height = height + 1
+    drawLine("X:" .. math.floor(notice[9][1]) .. " Y:" .. math.floor(notice[9][2]) .. " Z:" .. math.floor(notice[9][3]), bg_col, 3, y_pos + height, 31)
+    height = height + 1
+    drawLine("  ", bg_col, 3, y_pos + height, 31)
+    height = height + 1
+    drawTwoColorLine("Type: " .. notice[2], bg_col, type_col, 3, y_pos + height, 31)
+    height = height + 1
+    for i=y_pos+height,m_height,1 do
+        drawLine("  ", bg_col, 3, y_pos + height, 31)
+        height = height + 1
+    end
+end
+
+local function closeLargeNotice ()
+    OpenNotice = nil
+    resetControlBoard()
+end
+
+local function resetBackground() 
+    mon.setBackgroundColour(colors.black)
+    mon.clear()
+    resetNoticeBoard()
+end
+
+local function addNotice (nt_type, title, msgTime, shortDesc, longDesc, sourcePos)
+    local ind = Type_ind[nt_type]
+    if ind == nil then
+        nt_type = "ERROR"
+        ind = Type_ind[nt_type]
+    end
+    local notice = {ID, nt_type, 0, 0, title, msgTime, shortDesc, longDesc, sourcePos}
+    ID = ID + 1
+    
+    table.insert(Notices[ind], 1, notice)
+    if #Notices[ind] > math.ceil(Height / 4) then
+        table.remove(Notices[ind])
+    end
+
+    if Type_filter[nt_type] then
+        table.insert(CurrNotices, 1, notice)
+        if #CurrNotices > math.ceil(Height / 4) then
+            table.remove(CurrNotices)
+        end
+    end
+end
+
+local function drawNoticeBoard ()
+    local y = 2
+
+    for _,notice in ipairs(CurrNotices) do
+        y = y + drawNotice(notice, y) + 1
+        if y > Height then break end
+    end
+end
+
+local function deleteNotice ()
+    for i,notice in ipairs(CurrNotices) do
+        if notice[1] == OpenNotice[1] then
+            table.remove(CurrNotices, i)
+        end
+    end
+    for i,notice in ipairs(Notices[Type_ind[OpenNotice[2]]]) do
+        if notice[1] == OpenNotice[1] then
+            table.remove(Notices[Type_ind[OpenNotice[2]]], i)
+        end
+    end
+    closeLargeNotice()
+    resetNoticeBoard()
+    drawNoticeBoard()
+end
+
+local function redrawScreen()
+    resetBackground()
+    drawNoticeBoard()
+end
+
+local function resizeLoop()
+    while true do
+        local e, ms = os.pullEvent("monitor_resize")
+        Width, Height = mon.getSize()
+        createFilters()
+        redrawScreen()
+    end
+end
+
+local function touchLoop ()
+    while true do
+        local e, ms, x, y = os.pullEvent("monitor_touch")
+        if LargeNoticeOpen then
+            local y_pos = math.floor((Height - 31) / 2)
+            if y == y_pos then
+                if (x == 31 or x == 32) then
+                    closeLargeNotice()
+                elseif (x == 4 or x == 5 or x == 6) then
+                    deleteNotice(OpenNotice)
+                end
+            end
+        end
+        if x > 37 then
+            for _,notice in ipairs(CurrNotices) do
+                if y >= notice[3] and y <= notice[3] + notice[4] then
+                    drawLargeNotice(notice)
+                end
+            end
+        elseif x > 35 then
+            for i,fil_y in ipairs(Filter_y) do
+                if y == fil_y then
+                    toggleFilter(i)
+                    resetNoticeBoard()
+                    drawNoticeBoard()
+                    break
+                end
+            end
+        end
+    end
+end
+
+local function modemLoop ()
+    while true do
+        local e, ms, sc, rc, msg, sd = os.pullEvent("modem_message")
+        if #msg ~= 6 then
+            addNotice("INFO", "MLFRMD NTC", os.time("utc") + 1, "Malformed Notice Recieved", "Malformed notice received, allegedly from channel " .. rc .. ", " .. sd .. " blocks away.", {gps.locate(3)})
+            print("rc: " .. rc .. "msg: " .. msg .. "dist: " .. sd)
+        else
+            addNotice(msg[1], msg[2], msg[3], msg[4], msg[5], msg[6])
+        end
+        resetNoticeBoard()
+        drawNoticeBoard()
+    end
+end
+
+ID = 1
+mon = peripheral.wrap("top")
+mon.setTextScale(0.5)
+mon.setBackgroundColour(colors.black) -- Black
+Width, Height = mon.getSize()
+LargeNoticeOpen = false
+OpenNotice = nil
+
+local md = peripheral.wrap("bottom")
+md.open(8969)
+
+createFilters()
+resetBackground()
+
+while true do
+    parallel.waitForAny(touchLoop, modemLoop, resizeLoop)
+end

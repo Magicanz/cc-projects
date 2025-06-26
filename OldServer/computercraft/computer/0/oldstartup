@@ -1,0 +1,8 @@
+redstone.setOutput("back", true)
+while true do
+    redstone.setOutput("back", false)
+    os.sleep(0.4)
+    redstone.setOutput("back", true)
+    os.sleep(420)
+end
+    

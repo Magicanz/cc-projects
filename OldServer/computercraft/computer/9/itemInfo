@@ -1,0 +1,32 @@
+{
+  {
+    "back",
+    "left",
+    "right",
+  },
+  {
+    15,
+    13,
+    11,
+  },
+  {
+    false,
+    false,
+    false,
+  },
+  {
+    "Flint",
+    "Clay",
+    "Cobble",
+  },
+  {
+    "ItmVlt",
+    "ItmVlt",
+    "ItmVlt",
+  },
+  {
+    -1800,
+    -1800,
+    -1800,
+  },
+}

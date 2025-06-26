@@ -1,0 +1,1 @@
+mon = peripheral.wrap("top")
